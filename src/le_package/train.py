@@ -1,6 +1,4 @@
 import joblib
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import sklearn
 from feature_engine.encoding import OneHotEncoder
@@ -8,8 +6,6 @@ from feature_engine.imputation import MeanMedianImputer
 from feature_engine.selection import DropFeatures
 from feature_engine.transformation import LogCpTransformer
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import r2_score
-from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import RobustScaler
 
@@ -70,7 +66,6 @@ def run_training():
     pipe.fit(X_train, y_train)  #
 
     # 4. Save the trained pipeline
-    import joblib
 
     # Using the path structure defined in your config and predict scripts
     filename = f"{cfg.PIPELINE_BASE_FILENAME}_v{cfg.VERSION}.pkl"
