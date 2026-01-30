@@ -1,40 +1,32 @@
 import joblib
 import pandas as pd
-import numpy as np
+from le_package import config
 
-from le_package.config import MODEL_DIR
-
-# Define the path to the saved model
-with open("VERSION", "r") as f:
-    VERSION = f.read().strip()
+def make_prediction():
+    # 1. Load the model using the VERSION-based filename
+    model_path = config.MODEL_DIR / f"le_model_v{config.VERSION}.pkl"
     
-PIPELINE_SAVE_FILE = f"life_expectancy_v{VERSION}.joblib"
-PIPELINE_PATH = os.path.join(MODEL_DIR, PIPELINE_SAVE_FILE)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model not found at {model_path}. Did you run training first?")
+    
+    pipe = joblib.load(model_path)
 
+    # 2. Load the data using the path logic from config.py
+    data_path = config.DATA_DIR / config.TRAINING_DATA_FILE
+    data = pd.read_csv(data_path)
 
-def make_prediction(input_data) -> np.ndarray:
-    """
-    Make a prediction using the saved model pipeline.
+    # 3. Clean columns (Essential for the WHO dataset)
+    data.columns = data.columns.str.strip()
+    
+    # 4. Prepare features (Drop the target if it exists)
+    X = data.drop(config.TARGET, axis=1) if config.TARGET in data.columns else data
 
-    Args:
-        input_data: A pandas DataFrame containing the raw input features.
-    Returns:
-        A list of predictions (or a dictionary with more metadata).
-    """
-
-    # 1. Load the persisted pipeline
-    trained_model = joblib.load(PIPELINE_PATH)
-
-    # 2. Make predictions
-    # Note: If your notebook used log transformation on the target,
-    # you might need to apply np.exp() here to return real prices.
-    predictions = trained_model.predict(input_data)
-
-    return predictions
-
+    # 5. Predict
+    results = pipe.predict(X)
+    
+    print(f"--- Prediction Results (v{config.VERSION}) ---")
+    print(f"Predictions for first 5 rows: {results[:20]}")
+    return results
 
 if __name__ == "__main__":
-    # Small test for local debugging
-    test_data = pd.read_csv("data/Life Expectancy Data.csv")
-    results = make_prediction(test_data)
-    print(f"Sample Predictions: {results[:5]}")
+    make_prediction()

@@ -11,10 +11,11 @@ from feature_engine.transformation import LogCpTransformer
 from feature_engine.encoding import OneHotEncoder
 from feature_engine.imputation import MeanMedianImputer
 import sklearn
-import features as pp
+
 import joblib
 
 from le_package import config as cfg
+from le_package import features as pp
 # Force Scikit-Learn to return Pandas DataFrames
 sklearn.set_config(transform_output="pandas")
 

@@ -1,48 +1,86 @@
-import numpy as np
 import pandas as pd
+import numpy as np
+import pytest
+from le_package.features import (
+    CountryInterpolator,
+    GroupedMedianImputer,
+    Binarizer,
+    ContinentConverter,
+    ImmunizationFeatureCreator
+)
 
-from le_package.features import Mapper, TemporalVariableTransformer
-
-
-def test_temporal_variable_transformer():
-    # 1. Arrange
-    transformer = TemporalVariableTransformer(
-        variables=["YearRemodAdd"], reference_variable="YrSold"
-    )
-    df = pd.DataFrame({"YearRemodAdd": [2010, 2000], "YrSold": [2015, 2015]})
+def test_country_interpolator():
+    # 1. Arrange: Create data with a gap for a specific country
+    df = pd.DataFrame({
+        "Country": ["Afghanistan", "Afghanistan", "Afghanistan"],
+        "BMI": [20.0, np.nan, 22.0]
+    })
+    transformer = CountryInterpolator(variables=["BMI"])
 
     # 2. Act
     X = transformer.transform(df)
 
-    # 3. Assert
-    assert X["YearRemodAdd"].iat[0] == 5
-    assert X["YearRemodAdd"].iat[1] == 15
-    assert X.shape == df.shape
+    # 3. Assert: Check if the middle value was interpolated to 21.0
+    assert X["BMI"].iat[1] == 21.0
 
 
-def test_mapper_transformer():
-    # 1. Arrange
-    mappings = {"Gd": 4, "TA": 3, "Fa": 2}
-    transformer = Mapper(variables=["ExterQual"], mappings=mappings)
-    df = pd.DataFrame({"ExterQual": ["Gd", "TA", "Fa", "Gd"]})
-
+def test_grouped_median_imputer():
+    # 1. Arrange: Status-based medians are 50 for Developing, 80 for Developed
+    df = pd.DataFrame({
+        "Status": ["Developing", "Developing", "Developed", "Developed"],
+        "Schooling": [50, np.nan, 80, np.nan]
+    })
+    transformer = GroupedMedianImputer(variables=["Schooling"])
+    
+    # 2. Act
     transformer.fit(df)
+    X = transformer.transform(df)
+
+    # 3. Assert
+    assert X["Schooling"].iat[1] == 50.0
+    assert X["Schooling"].iat[3] == 80.0
+
+
+def test_binarizer():
+    # 1. Arrange
+    df = pd.DataFrame({"HIV/AIDS": [0.05, 0.5, 0.0, 1.2]})
+    transformer = Binarizer(variables=["HIV/AIDS"], threshold=0.1)
+
     # 2. Act
     X = transformer.transform(df)
 
-    # 3. Assert
-    assert X["ExterQual"].iat[0] == 4
-    assert X["ExterQual"].iat[2] == 2
-    assert not X["ExterQual"].isnull().any()
+    # 3. Assert: 0.05 is below 0.1 (-> 0), others are above (-> 1)
+    assert X["HIV/AIDS"].iat[0] == 0
+    assert X["HIV/AIDS"].iat[1] == 1
 
 
-def test_mapper_transformer_with_missing_keys():
-    # Testing how your code handles values not in the mapping
-    mappings = {"Gd": 4}
-    transformer = Mapper(variables=["ExterQual"], mappings=mappings)
-    df = pd.DataFrame({"ExterQual": ["Gd", "MissingValue"]})
-    transformer.fit(df)
+def test_continent_converter():
+    # 1. Arrange
+    df = pd.DataFrame({"Country": ["Canada", "Germany", "Japan"]})
+    transformer = ContinentConverter(country_col="Country")
+
+    # 2. Act
     X = transformer.transform(df)
 
-    # Based on .map() behavior, unknown values become NaN
-    assert np.isnan(X["ExterQual"].iat[1])
+    # 3. Assert: Check if continent mapping via country_converter works
+    assert X["Continent"].iat[0] == "America"
+    assert X["Continent"].iat[1] == "Europe"
+    assert X["Continent"].iat[2] == "Asia"
+
+
+def test_immunization_feature_creator():
+    # 1. Arrange
+    cols = ["Polio", "Diphtheria", "Hepatitis B"]
+    df = pd.DataFrame({
+        "Polio": [100, 80],
+        "Diphtheria": [90, 70],
+        "Hepatitis B": [80, 60]
+    })
+    transformer = ImmunizationFeatureCreator(variables=cols)
+
+    # 2. Act
+    X = transformer.transform(df)
+
+    # 3. Assert: Mean of (100, 90, 80) is 90
+    assert X["Immunization_Score"].iat[0] == 90.0
+    assert "Immunization_Score" in X.columns

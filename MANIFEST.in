@@ -1,8 +1,9 @@
 include *.txt
 include *.md
-include VERSION
+recursive-include src/le_package VERSION
 recursive-include src/le_package/config *.py
-include configs/*.yaml
+recursive-include src/le_package/configs *.yaml
+recursive-include models *.joblib
 recursive-include models *.pkl
 recursive-include models *.onnx
 

@@ -1,14 +1,22 @@
+import os
 from pathlib import Path
 
 import yaml
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
-PROJECT_ROOT = PACKAGE_ROOT.parent.parent
+# Check if we are in a 'tox' environment
+if "site-packages" in str(PACKAGE_ROOT):
+    # In Tox, the project root is usually the Current Working Directory
+    # because that's where you ran the 'tox' command from.
+    PROJECT_ROOT = Path(os.getcwd())
+else:
+    # In local development, use the grandparent of src/le_package
+    PROJECT_ROOT = PACKAGE_ROOT.parent.parent
 
-CONFIG_FILE_PATH = PROJECT_ROOT / "configs" / "params.yaml"
+CONFIG_FILE_PATH = PACKAGE_ROOT / "configs" / "params.yaml"
 DATA_DIR = PROJECT_ROOT / "data"
 MODEL_DIR = PROJECT_ROOT / "models"
-VERSION_FILE_PATH = PROJECT_ROOT / "VERSION"
+VERSION_FILE_PATH = PACKAGE_ROOT / "VERSION"
 
 
 def fetch_version() -> str:
