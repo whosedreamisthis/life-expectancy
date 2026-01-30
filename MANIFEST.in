@@ -1,0 +1,13 @@
+include *.txt
+include *.md
+include VERSION
+recursive-include src/le_package/config *.py
+include configs/*.yaml
+recursive-include models *.pkl
+recursive-include models *.onnx
+
+exclude *.log
+exclude *.cfg
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

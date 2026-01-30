@@ -1,0 +1,50 @@
+# Reproducibility
+random_state: 0
+
+# Target
+target: "Life expectancy"
+
+# Hyperparameters
+n_estimators: 300
+
+# Features
+features_to_drop:
+  - Year
+  - Country
+  - 'Hepatitis B'
+  - Polio
+  - Diphtheria
+  - 'infant deaths' 
+  - 'percentage expenditure'
+  - 'thinness 5-9 years'
+  - 'Income composition of resources'
+  - 'thinness  1-19 years'
+
+num_vars_with_na:
+  - Alcohol
+  - 'Hepatitis B'
+  - BMI
+  - Polio
+  - 'Total expenditure'
+  - Diphtheria
+  - GDP
+  - Population
+  - Schooling
+
+numerical_log_vars: 
+  - 'under-five deaths'
+  - Population
+  - Measles
+  - GDP
+
+binarize_vars:
+  - HIV/AIDS
+
+ohe_vars: 
+  - Status
+  - Continent
+
+imm_vars: 
+  - 'Hepatitis B'
+  - Polio
+  - Diphtheria
