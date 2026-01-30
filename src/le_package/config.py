@@ -75,3 +75,8 @@ N_ESTIMATORS = _config["n_estimators"]
 PIPELINE_BASE_FILENAME = "le_model"
 PIPELINE_SAVE_FILE = _config.get("pipeline_save_file", "le_model.pkl")
 TRAINING_DATA_FILE = _config.get("training_data_file", "Life Expectancy Data.csv")
+
+# Create a logs directory in the project root
+LOG_DIR = PROJECT_ROOT / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOG_DIR / "api.log"
