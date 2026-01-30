@@ -67,7 +67,6 @@ OHE_VARS = _config["ohe_vars"]
 IMM_VARS = _config["imm_vars"]
 
 
-    
 # Model Hyperparameters
 N_ESTIMATORS = _config["n_estimators"]
 

@@ -1,20 +1,24 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
+
 from le_package.features import (
-    CountryInterpolator,
-    GroupedMedianImputer,
     Binarizer,
     ContinentConverter,
-    ImmunizationFeatureCreator
+    CountryInterpolator,
+    GroupedMedianImputer,
+    ImmunizationFeatureCreator,
 )
+
 
 def test_country_interpolator():
     # 1. Arrange: Create data with a gap for a specific country
-    df = pd.DataFrame({
-        "Country": ["Afghanistan", "Afghanistan", "Afghanistan"],
-        "BMI": [20.0, np.nan, 22.0]
-    })
+    df = pd.DataFrame(
+        {
+            "Country": ["Afghanistan", "Afghanistan", "Afghanistan"],
+            "BMI": [20.0, np.nan, 22.0],
+        }
+    )
     transformer = CountryInterpolator(variables=["BMI"])
 
     # 2. Act
@@ -26,12 +30,14 @@ def test_country_interpolator():
 
 def test_grouped_median_imputer():
     # 1. Arrange: Status-based medians are 50 for Developing, 80 for Developed
-    df = pd.DataFrame({
-        "Status": ["Developing", "Developing", "Developed", "Developed"],
-        "Schooling": [50, np.nan, 80, np.nan]
-    })
+    df = pd.DataFrame(
+        {
+            "Status": ["Developing", "Developing", "Developed", "Developed"],
+            "Schooling": [50, np.nan, 80, np.nan],
+        }
+    )
     transformer = GroupedMedianImputer(variables=["Schooling"])
-    
+
     # 2. Act
     transformer.fit(df)
     X = transformer.transform(df)
@@ -71,11 +77,9 @@ def test_continent_converter():
 def test_immunization_feature_creator():
     # 1. Arrange
     cols = ["Polio", "Diphtheria", "Hepatitis B"]
-    df = pd.DataFrame({
-        "Polio": [100, 80],
-        "Diphtheria": [90, 70],
-        "Hepatitis B": [80, 60]
-    })
+    df = pd.DataFrame(
+        {"Polio": [100, 80], "Diphtheria": [90, 70], "Hepatitis B": [80, 60]}
+    )
     transformer = ImmunizationFeatureCreator(variables=cols)
 
     # 2. Act
