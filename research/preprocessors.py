@@ -52,26 +52,26 @@ class Binarizer(BaseEstimator, TransformerMixin):
         X_copy[var] = (X_copy[var] > self.threshold).astype(int)
       return X_copy
     
+def get_continent(df, column):
+    # This keeps the coco logic inside a standard function call
+    return coco.convert(names=df[column], to='continent')
+
 class ContinentConverter(BaseEstimator, TransformerMixin):
-    def __init__(self, country_col='Country'):
+    def __init__(self, country_col):
         self.country_col = country_col
-        self.cc = coco.CountryConverter()
 
     def fit(self, X, y=None):
-        # Nothing to learn from the data
         return self
 
     def transform(self, X):
         X_copy = X.copy()
-        if self.country_col in X_copy.columns:
-            unique_countries = X_copy[self.country_col].unique()
-            # Convert unique names to continents
-            continent_map = self.cc.convert(names=unique_countries, to='continent')
-            # Create the mapping dictionary
-            country_to_continent = dict(zip(unique_countries, continent_map))
-            # Apply mapping
-            X_copy['Continent'] = X_copy[self.country_col].map(country_to_continent)
+        X_copy['Continent'] = get_continent(X_copy, self.country_col)
         return X_copy
+
+    def get_feature_names_out(self, input_features=None):
+        return np.append(input_features, 'Continent')
+
+
       
 class ImmunizationFeatureCreator(BaseEstimator, TransformerMixin):
     def __init__(self, variables):
