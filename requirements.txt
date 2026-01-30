@@ -11,5 +11,11 @@ country-converter>=1.0.0
 joblib>=1.1.0
 PyYAML>=6.0
 
+# API & Web Server (CRITICAL FOR RAILWAY)
+fastapi>=0.70.0
+uvicorn>=0.15.0
+pydantic>=1.8.0
+python-multipart>=0.0.5
+
 # Optional: Visualization (useful for notebooks/research)
 # matplotlib>=3.4.0
